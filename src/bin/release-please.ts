@@ -47,6 +47,9 @@ interface GitHubArgs {
   repoUrl?: string;
   token?: string;
   apiUrl?: string;
+  proxyProtocol?: string;
+  proxyServer?: string;
+  proxyPort?: number;
   graphqlUrl?: string;
   fork?: boolean;
 
@@ -178,6 +181,16 @@ function gitHubOptions(yargs: yargs.Argv): yargs.Argv {
       describe: 'GitHub URL to generate release for',
       demand: true,
     })
+    .option('proxyProtocol', {
+      describe: 'Proxy protocol i.e. either http or https. If setting Proxy proxyProtocol, proxyServer and proxyPort need to be set.'
+    })
+    .option('proxyServer', {
+      describe: 'Proxy server without protocol. If setting Proxy proxyProtocol, proxyServer and proxyPort need to be set.'
+    })
+    .option('proxyPort', {
+      describe: 'Proxy port as a number. If setting Proxy proxyProtocol, proxyServer and proxyPort need to be set.'
+    })
+
     .option('dry-run', {
       describe: 'Prepare but do not take action',
       type: 'boolean',
@@ -786,9 +799,18 @@ const debugConfigCommand: yargs.CommandModule<{}, DebugConfigArgs> = {
 
 async function buildGitHub(argv: GitHubArgs): Promise<GitHub> {
   const [owner, repo] = parseGithubRepoUrl(argv.repoUrl);
+  let proxy;
+  const thisProxyProtocol = argv.proxyProtocol;
+  const thisProxyServer = argv.proxyServer;
+  const thisProxyPort = argv.proxyPort;
+  if( thisProxyProtocol && thisProxyServer && thisProxyPort ) {
+    const [ protocol, host, port ] = [ thisProxyProtocol, thisProxyServer, thisProxyPort ]
+    proxy = { protocol, host, port }
+  }
   const github = await GitHub.create({
     owner,
     repo,
+    proxy,
     token: argv.token!,
     apiUrl: argv.apiUrl,
     graphqlUrl: argv.graphqlUrl,

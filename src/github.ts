@@ -68,6 +68,7 @@ export interface GitHubOptions {
 }
 
 interface ProxyOption {
+  protocol: string;
   host: string;
   port: number;
 }
@@ -223,17 +224,13 @@ export class GitHub {
       return undefined;
     }
 
-    const {host, port} = defaultProxy;
-
-    return new URL(baseUrl).protocol.replace(':', '') === 'http'
-      ? new HttpProxyAgent({
-          host,
-          port,
-        })
-      : new HttpsProxyAgent({
-          host,
-          port,
-        });
+    const {protocol, host, port} = defaultProxy;
+    
+    if(protocol === 'http') {
+      return new HttpProxyAgent({host, port});
+    } else {
+      return new HttpsProxyAgent({host, port})
+    }
   }
 
   /**

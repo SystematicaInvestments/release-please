@@ -103,6 +103,7 @@ describe('GitHub', () => {
     it('should return a https agent', () => {
       expect(
         GitHub.createDefaultAgent(GH_API_URL, {
+          protocol: 'https',
           host: 'http://proxy.com',
           port: 3000,
         })
@@ -112,6 +113,7 @@ describe('GitHub', () => {
     it('should throw error when baseUrl is an invalid url', () => {
       expect(() => {
         GitHub.createDefaultAgent('invalid_url', {
+          protocol: 'http',
           host: 'http://proxy.com',
           port: 3000,
         });
@@ -121,6 +123,7 @@ describe('GitHub', () => {
     it('should return a http agent', () => {
       expect(
         GitHub.createDefaultAgent('http://www.github.com', {
+          protocol: 'http',
           host: 'http://proxy.com',
           port: 3000,
         })
